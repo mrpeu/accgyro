@@ -35,12 +35,26 @@
 				color: #0080ff;
 			}
 
+			#Main>canvas {
+				height: 100%;
+				width:  100%;
+			}
+
+			#GraphContainer>canvas {
+				position: fixed;
+				bottom: 0;
+				box-shadow: 0 0 16px 0 #555;
+				background-color: rgba(250, 250, 250, 0.88);
+				border: 1px solid #999;
+			}
+
 		</style>
 	</head>
 	<body>
 
 		<script src="./three.min.js"></script>
 		<script src="./OrbitControls.js"></script>
+		<script src="./GraphContainer.js"></script>
 		<script src="./index.js"></script>
 
 	</body>

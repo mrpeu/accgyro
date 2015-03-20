@@ -9,16 +9,33 @@ var windowHalfX = window.innerWidth / 2,
 	camera, controls,
 	scene, renderer,
 
-	cube0, cube1;
+	cube0, cube1,
 
-init();
-update();
+	offsetAcc, offsetGyro,
+	histAcc = {x:[],y:[],z:[]}, histGyro = {x:[],y:[],z:[]},
+
+	graphContainer
+;
+
+
+setInterval(function(){
+
+	histAcc.x.push(Math.random()*2);
+	// histAcc.y.push(histAcc.y.length/10+.01);
+	// histAcc.z.push(histAcc.z.length/10+.02);
+
+	// histAcc.x.push(cube0.rotation.x);
+
+	// histGyro.push(cube1.rotation.toArray());
+}, 500);
+
 
 function init() {
 
 	var container;
 
-	container = document.createElement( 'div' );
+	container = document.createElement( "div" );
+	container.id = "Main";
 	document.body.appendChild( container );
 
 	camera = new THREE.PerspectiveCamera( 30, window.innerWidth / window.innerHeight, 1, 10000 );
@@ -54,7 +71,7 @@ function init() {
 
 
 
-	/**********************
+		/**********************
 	 *        Cube       *
 	 **********************/
 
@@ -94,8 +111,16 @@ function init() {
 
 
 
+	/**********************
+	 *     AxisHelper     *
+	 **********************/
+
 	var axis = new THREE.AxisHelper( 10 );
 	scene.add( axis );
+
+
+	graphContainer = new GraphContainer();
+
 
 	//
 
@@ -120,8 +145,7 @@ function update() {
 	var time_now = Date.now(),
 		time_delta = time_now - time;
 
-
-
+	graphContainer.update( histAcc, histGyro );
 
 	render();
 	time = time_now;
@@ -130,6 +154,7 @@ function update() {
 
 function render() {
 
+	graphContainer.render();
 	
 	renderer.render( scene, camera );
 }
@@ -142,21 +167,25 @@ function render() {
 *        Event        *
 **********************/
 
-function onMotion( e ) {
+function onOrientation( e ) {
 
-	cube1.rotation.set(
-		Math.PI/180 * e.acceleration.x||0,
-		Math.PI/180 * e.acceleration.y||0,
-		Math.PI/180 * e.acceleration.z||0
+	if( !offsetGyro ) offsetGyro = new THREE.Vector3( e.beta, e.gamma, e.alpha );
+
+	cube0.rotation.set(
+		(Math.PI/180 * e.beta)*2  - offsetGyro.x,
+		(Math.PI/180 * e.gamma)*2 - offsetGyro.y,
+		(Math.PI/180 * e.alpha)*2 - offsetGyro.z
 	);
 }
 
-function onOrientation( e ) {
+function onMotion( e ) {
 
-	cube0.rotation.set(
-		Math.PI/180 * e.beta||0,
-		Math.PI/180 * e.gamma||0,
-		Math.PI/180 * e.alpha||0
+	if( !offsetAcc ) offsetAcc = new THREE.Vector3( e.acceleration.x, e.acceleration.y, e.acceleration.z );
+
+	cube1.rotation.set(
+		Math.PI/180 * e.acceleration.x - offsetAcc.x,
+		Math.PI/180 * e.acceleration.y - offsetAcc.y,
+		Math.PI/180 * e.acceleration.z - offsetAcc.z
 	);
 }
 
@@ -171,3 +200,12 @@ function onWindowResize() {
 	renderer.setSize( window.innerWidth, window.innerHeight );
 
 }
+
+
+
+
+
+
+
+init();
+update();
