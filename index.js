@@ -20,7 +20,7 @@ var windowHalfX = window.innerWidth / 2,
 /* TEST */
 var spline = new THREE.SplineCurve((function(len){
 	var r = [];
-	for(var i=0;i<=len;i++){ r.push(new THREE.Vector2( i, Math.random() )); }
+	for(var i=0;i<=len;i++){ r.push(new THREE.Vector2( i, Math.random()-.5 )); }
 	return r;
 })(50));
 var cursor = 0;
@@ -84,7 +84,7 @@ function init() {
 
 	cube0 = new THREE.Mesh(
 		new THREE.BoxGeometry( 1, 1, 1 ),
-		new THREE.MeshPhongMaterial({ color: 0xf0ad4e })
+		new THREE.MeshPhongMaterial({ color: 0xffc200, emissive: 0x7c6900, specular: 0xeedd99, specularity: 5, shading: THREE.FlatShading })
 	);
 	cube0.scale.set( 10, 10, 10 );
 
@@ -93,7 +93,7 @@ function init() {
 
 	cube1 = new THREE.Mesh(
 		new THREE.BoxGeometry( 1, 1, 1 ),
-		new THREE.MeshPhongMaterial({ color: 0x5bc0de, wireframe: true })
+		new THREE.MeshPhongMaterial({ color: 0x00c2ff, wireframe: true })
 	);
 	cube1.scale.set( 13, 13, 13 );
 
@@ -105,15 +105,15 @@ function init() {
 	 *        Light       *
 	 **********************/
 
-	var lightP0 = new THREE.PointLight( 0xffffff, 1.5, 0 );
-	lightP0.position.set( 150, 180, 200 );
+	var lightP0 = new THREE.PointLight( 0xffffff );
+	lightP0.position.set( 30, 60, 80 );
 	lightP0.lookAt( 0, 0, 0 );
 	scene.add( lightP0 );
 
 	var lightA = new THREE.AmbientLight( 0x202020 );
 	scene.add( lightA );
 
-	scene.add( new THREE.PointLightHelper( lightP0, 20 ) );
+// 	scene.add( new THREE.PointLightHelper( lightP0, 20 ) );
 // 	scene.add( new THREE.PointLightHelper( lightA, 20 ) );
 
 	scene.lights = [ lightP0, lightA ];

@@ -33,13 +33,14 @@ var GraphContainer = function() {
 		scope.container.appendChild( scope.renderer.domElement );
 
 		scope.controls = new THREE.OrbitControls( scope.camera, scope.renderer.domElement );
-// 		scope.controls.target.set( w, 0, 0 );
+		scope.controls.damping = 0.2;
+		scope.controls.addEventListener( 'change', render );
 		scope.controls.pan( -w, 0 );
 		scope.controls.update();
-		scope.controls.addEventListener( 'change', render );
 
 		scope.graphAccX = new GraphContainer.Graph({color: 0xededed});
 		scope.graphAccX.translateX( w );
+ 		scope.graphAccX.translateY( -h/2 );
 		scope.graphAccX.scale.set( w, h, 1 );
 		scope.scene.add( scope.graphAccX );
 
@@ -98,9 +99,8 @@ GraphContainer.Graph = function( o ){
     scope.type = 'Graph';
     scope.mesh = null;
     scope.data = [];
-    scope.color = o.color || 0xff000;
-    scope.width = o.width || 100;
-    scope.nbPoint = 27;
+    scope.color = o.color;
+    scope.width = o.width;
     scope.temp = 0;
 
 	init = function(){
@@ -124,17 +124,20 @@ GraphContainer.Graph = function( o ){
 		scope.temp = data.length;
 
 		var p = scope.mesh.geometry.vertices,
-			len = p.length/2
+			len = p.length
 		;
 
-		for( var i=0; i<len; i++) {
+		for( var j=0; j<len; j++) {
 			var val = data[data.length-1-i] ? data[data.length-1-i].y : 1;
+			var i = j;//Math.sign(val)?j:j*2;
 			p[i].y = val;
 
-			scope.mesh.geometry.faces[i*2%(len)].vertexColors = [
-				new THREE.Color(0xededed),
-				new THREE.Color(0xf3f3f3),
-				new THREE.Color(0xfefefe)
+			var face = scope.mesh.geometry.faces[i];
+			if(face)
+			face.vertexColors = [
+				new THREE.Color(0x0000ee),
+				new THREE.Color(0xeeeeee),
+				new THREE.Color(0xee0000)
 			];
 		}
 
