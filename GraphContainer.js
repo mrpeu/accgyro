@@ -15,43 +15,42 @@ var GraphContainer = function() {
 
 	function init() {
 
-		var windowHalfX = window.innerWidth / 2,
-			windowHalfY = window.innerHeight / 2;
+		scope.container = document.querySelector("#GraphContainer");
 
-		scope.container = document.createElement( "div" );
-		scope.container.id = "GraphContainer";
-		document.body.appendChild( scope.container );
-
-		var w = windowHalfX     *.1,
-			h = windowHalfY*.25 *.2
+		var w = scope.container.clientWidth/2,
+			h = scope.container.clientHeight/2
 		;
 
-		scope.camera = new THREE.OrthographicCamera( -w, w, h, -h, -50, 50 );
-		scope.camera.position.set( 0, 0, 1 );
+		scope.camera = new THREE.OrthographicCamera( -w, w, h, -h, -1000, 1000 );
 
 		scope.scene = new THREE.Scene();
 		scope.scene.fog = new THREE.FogExp2( 0xbbbbbb, 0.002 );
 
 		scope.renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
 		scope.renderer.setPixelRatio( window.devicePixelRatio );
-		scope.renderer.setSize( window.innerWidth, window.innerHeight*.25 );
+		scope.renderer.setSize( 2*w, 2*h );
+// 		scope.renderer.setClearColor( 0xaa5555, .5 );
 		scope.container.appendChild( scope.renderer.domElement );
 
-		scope.controls = new THREE.OrbitControls( scope.camera );
-		scope.controls.damping = 0.2;
+		scope.controls = new THREE.OrbitControls( scope.camera, scope.renderer.domElement );
+// 		scope.controls.target.set( w, 0, 0 );
+		scope.controls.pan( -w, 0 );
+		scope.controls.update();
 		scope.controls.addEventListener( 'change', render );
 
-
-		scope.graphAccX = new GraphContainer.Graph({color: 0x0000ff});
-
+		scope.graphAccX = new GraphContainer.Graph({color: 0xededed});
+		scope.graphAccX.translateX( w );
+		scope.graphAccX.scale.set( w, h, 1 );
 		scope.scene.add( scope.graphAccX );
 
 		/**********************
 		 *     AxisHelper     *
 		 **********************/
 
-		var axis = new THREE.AxisHelper( 10 );
+		var axis = new THREE.AxisHelper( h );
+		axis.translateZ(1);
 		scope.scene.add( axis );
+
 	}
 
 	init();
@@ -101,13 +100,17 @@ GraphContainer.Graph = function( o ){
     scope.data = [];
     scope.color = o.color || 0xff000;
     scope.width = o.width || 100;
-    scope.height = o.height || 10;
     scope.nbPoint = 27;
     scope.temp = 0;
 
 	init = function(){
-		var geo = new THREE.PlaneGeometry( 2, 2, 5, 1 );
-		var mat = new THREE.MeshBasicMaterial({ color: scope.color });
+		var geo = new THREE.PlaneGeometry( 2, 2, 50, 1 );
+		var mat = new THREE.MeshBasicMaterial({
+// 			color: scope.color,
+ 			vertexColors: THREE.VertexColors,
+			transparent: true,
+			opacity: .5
+		});
 
 		scope.mesh = new THREE.Mesh( geo, mat );
 
@@ -115,22 +118,28 @@ GraphContainer.Graph = function( o ){
 	};
 
 	this.update = function( data ){
-		// todo
+
 		if( scope.temp == data.length ) return;
 
 		scope.temp = data.length;
 
 		var p = scope.mesh.geometry.vertices,
-			len = p.length/2,
-			wu = scope.width/len, // width unit
-			hu = scope.height/len // height unit
+			len = p.length/2
 		;
 
 		for( var i=0; i<len; i++) {
-			p[i].y = data[data.length-1-i]||1;
+			var val = data[data.length-1-i] ? data[data.length-1-i].y : 1;
+			p[i].y = val;
+
+			scope.mesh.geometry.faces[i*2%(len)].vertexColors = [
+				new THREE.Color(0xededed),
+				new THREE.Color(0xf3f3f3),
+				new THREE.Color(0xfefefe)
+			];
 		}
 
 		scope.mesh.geometry.verticesNeedUpdate = true;
+		scope.mesh.geometry.colorsNeedUpdate = true;
 	};
 
 	init();

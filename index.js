@@ -17,26 +17,33 @@ var windowHalfX = window.innerWidth / 2,
 	graphContainer
 ;
 
+/* TEST */
+var spline = new THREE.SplineCurve((function(len){
+	var r = [];
+	for(var i=0;i<=len;i++){ r.push(new THREE.Vector2( i, Math.random() )); }
+	return r;
+})(50));
+var cursor = 0;
+var points = spline.getPoints( 500 );
+
 
 setInterval(function(){
+	
+	cursor = ++cursor % (points.length);
+	histAcc.x.push(points[cursor]);
 
-	histAcc.x.push(Math.random()*2);
 	// histAcc.y.push(histAcc.y.length/10+.01);
 	// histAcc.z.push(histAcc.z.length/10+.02);
 
 	// histAcc.x.push(cube0.rotation.x);
 
 	// histGyro.push(cube1.rotation.toArray());
-}, 500);
+}, 33);
 
 
 function init() {
 
-	var container;
-
-	container = document.createElement( "div" );
-	container.id = "Main";
-	document.body.appendChild( container );
+	var container = document.querySelector( "#Main" );
 
 	camera = new THREE.PerspectiveCamera( 30, window.innerWidth / window.innerHeight, 1, 10000 );
 	camera.position.set( 20, 20, 45 );
@@ -71,7 +78,7 @@ function init() {
 
 
 
-		/**********************
+	/**********************
 	 *        Cube       *
 	 **********************/
 
@@ -109,6 +116,7 @@ function init() {
 	scene.add( new THREE.PointLightHelper( lightP0, 20 ) );
 // 	scene.add( new THREE.PointLightHelper( lightA, 20 ) );
 
+	scene.lights = [ lightP0, lightA ];
 
 
 	/**********************
@@ -118,6 +126,11 @@ function init() {
 	var axis = new THREE.AxisHelper( 10 );
 	scene.add( axis );
 
+
+
+	/**********************
+	 *   GraphContainer   *
+	 **********************/
 
 	graphContainer = new GraphContainer();
 
@@ -145,7 +158,7 @@ function update() {
 	var time_now = Date.now(),
 		time_delta = time_now - time;
 
-	graphContainer.update( histAcc, histGyro );
+	if(graphContainer) graphContainer.update( histAcc, histGyro );
 
 	render();
 	time = time_now;
@@ -154,7 +167,7 @@ function update() {
 
 function render() {
 
-	graphContainer.render();
+	if(graphContainer) graphContainer.render();
 	
 	renderer.render( scene, camera );
 }

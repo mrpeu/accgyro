@@ -35,12 +35,16 @@
 				color: #0080ff;
 			}
 
-			#Main>canvas {
-				height: 100%;
+			#Main {
 				width:  100%;
+				height: 100%;
 			}
 
-			#GraphContainer>canvas {
+			#GraphContainer {
+				width:  100%;
+				height: 25%;
+				min-height: 128px;
+				
 				position: fixed;
 				bottom: 0;
 				box-shadow: 0 0 16px 0 #555;
@@ -51,6 +55,9 @@
 		</style>
 	</head>
 	<body>
+
+		<div id="Main"></div>
+		<div id="GraphContainer"></div>
 
 		<script src="./three.min.js"></script>
 		<script src="./OrbitControls.js"></script>
